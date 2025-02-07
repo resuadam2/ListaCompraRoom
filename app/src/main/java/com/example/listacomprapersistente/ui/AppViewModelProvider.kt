@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.listacomprapersistente.ListaCompraApp
+import com.example.listacomprapersistente.ListaCompraApplication
 import com.example.listacomprapersistente.ui.screens.ListViewModel
 
 /**
@@ -32,5 +33,5 @@ object AppViewModelProvider {
  * Esto nos sirve para obtener la instancia de la aplicación en cualquier parte del código.
  * De esta forma podemos acceder a los componentes de la aplicación desde cualquier parte.
  */
-fun CreationExtras.listaCompraApp(): ListaCompraApp =
-    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ListaCompraApp)
+fun CreationExtras.listaCompraApp(): ListaCompraApplication =
+    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ListaCompraApplication)

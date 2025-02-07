@@ -27,10 +27,10 @@ fun AppNavHost(
                     navController.navigate(ProductAddDestination.route)
                 },
                 navigateToProductDetails = {
-                    navController.navigate(ProductDetailsDestination.route)
+                    navController.navigate(ProductDetailsDestination.routeWithArgs)
                 },
                 navigateToProductUpdate = {
-                    navController.navigate(ProductUpdateDestination.route)
+                    navController.navigate(ProductUpdateDestination.routeWithArgs)
                 }
             )
         }

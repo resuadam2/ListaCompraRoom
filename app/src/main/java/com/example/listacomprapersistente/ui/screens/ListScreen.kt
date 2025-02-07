@@ -193,3 +193,14 @@ fun ProductItemPreview() {
         onDelete = {}
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun ListScreenPreview() {
+    ListScreen(
+        navigateToAddProduct = {},
+        navigateToProductDetails = {},
+        navigateToProductUpdate = {},
+        modifier = Modifier
+    )
+}
