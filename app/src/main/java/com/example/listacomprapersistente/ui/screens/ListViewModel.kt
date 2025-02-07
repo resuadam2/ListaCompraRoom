@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class ListUiState(
-    val products: List<Product> = emptyList()
+    val products: List<Product> = emptyList(),
+    val totalQuantity: Int = 0,
+    val totalPrice: Double = 0.0
 )
 
 class ListViewModel(private val productRepository: PruductRepository) : ViewModel() {
@@ -45,5 +47,13 @@ class ListViewModel(private val productRepository: PruductRepository) : ViewMode
 
     suspend fun deleteProduct(product: Product) {
         productRepository.deleteProduct(product)
+        updateTotals()
+    }
+
+    private fun updateTotals() {
+        val products = listUiState.value.products
+        val totalQuantity = products.sumOf { it.quantity }
+        val totalPrice = products.sumOf { it.price }
+        listUiState.value.copy(totalQuantity = totalQuantity, totalPrice = totalPrice)
     }
 }

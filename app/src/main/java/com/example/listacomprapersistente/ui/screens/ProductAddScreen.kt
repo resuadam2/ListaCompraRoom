@@ -76,6 +76,7 @@ fun ProductAddScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // Aquí iría el formulario para añadir un producto
+            Text("Formulario para añadir un producto")
         }
     }
 
