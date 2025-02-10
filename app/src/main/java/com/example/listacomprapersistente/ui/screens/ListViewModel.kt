@@ -4,15 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listacomprapersistente.data.Product
 import com.example.listacomprapersistente.data.PruductRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.toList
 
 data class ListUiState(
     val products: List<Product> = emptyList(),
+)
+
+data class TotalsUiState(
     val totalQuantity: Int = 0,
-    val totalPrice: Double = 0.0
+    val totalPrice: Double = 0.0,
 )
 
 class ListViewModel(private val productRepository: PruductRepository) : ViewModel() {
@@ -35,7 +42,8 @@ class ListViewModel(private val productRepository: PruductRepository) : ViewMode
     * para que el estado se mantenga, esto es útil para evitar que la lista de productos se actualice
     * constantemente, lo que puede ser molesto para el usuario
      */
-    val listUiState: StateFlow<ListUiState> =
+
+    var listUiState: StateFlow<ListUiState> =
         productRepository.getProductsStream().map {
             ListUiState(it)
         }.stateIn(
@@ -44,16 +52,23 @@ class ListViewModel(private val productRepository: PruductRepository) : ViewMode
             initialValue = ListUiState()
         )
 
+    private val _totals  = MutableStateFlow(TotalsUiState())
+    var totals = _totals.asStateFlow()
+
+    init {
+        updateTotals()
+    }
 
     suspend fun deleteProduct(product: Product) {
         productRepository.deleteProduct(product)
+        delay(500) // Pequeño delay para que de tiempo a borrar de bd
         updateTotals()
     }
 
     private fun updateTotals() {
-        val products = listUiState.value.products
-        val totalQuantity = products.sumOf { it.quantity }
-        val totalPrice = products.sumOf { it.price }
-        listUiState.value.copy(totalQuantity = totalQuantity, totalPrice = totalPrice)
+        _totals.value = totals.value.copy(
+            totalQuantity = listUiState.value.products.sumOf { it.quantity },
+            totalPrice = listUiState.value.products.sumOf { it.price }
+        )
     }
 }

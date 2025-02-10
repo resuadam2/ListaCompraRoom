@@ -54,6 +54,8 @@ fun ListScreen(
     viewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
     val state = viewModel.listUiState.collectAsState()
+    val totals = viewModel.totals.collectAsState()
+
     Scaffold (
         topBar = {
             TopAppBar(
@@ -86,8 +88,8 @@ fun ListScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ){
                 TotalRow(
-                    totalQuantity = state.value.totalQuantity.toString(),
-                    totalPrice = state.value.totalPrice.toString()
+                    totalQuantity = totals.value.totalQuantity.toString(),
+                    totalPrice = totals.value.totalPrice.toString()
                 )
             }
         }

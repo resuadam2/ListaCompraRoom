@@ -1,5 +1,6 @@
 package com.example.listacomprapersistente.ui.screens
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -88,9 +89,18 @@ class ProductAddViewModel (
 
     /**
      * Guarda un producto en la base de datos
+     * Captura la SQLException que se produce si el producto ya existe y devuelve false en ese caso
      */
-    suspend fun saveProduct() {
-        if (validateInput()) productRepository.insertProduct(productAddUiState.productDetails.toProduct())
+    suspend fun saveProduct(): Boolean {
+        if (validateInput(productAddUiState.productDetails)) {
+            try {
+                productRepository.insertProduct(productAddUiState.productDetails.toProduct())
+                return true
+            } catch (e: SQLiteConstraintException) {
+                updateUiState(productAddUiState.productDetails.copy(productName = ""))
+                return false
+            }
+        } else return false
     }
 
     /**
