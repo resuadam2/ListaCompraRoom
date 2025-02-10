@@ -51,6 +51,7 @@ fun AppNavHost(
             ) {
             ProductAddScreen(
                 action = "Details",
+                product = it.arguments?.getString(ProductDetailsDestination.productNameArg),
                 navigateBack = { navController.popBackStack() },
             )
         }
@@ -62,6 +63,7 @@ fun AppNavHost(
         ) {
             ProductAddScreen(
                 action = "Update",
+                product = it.arguments?.getString(ProductUpdateDestination.productNameArg),
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp()}
             )

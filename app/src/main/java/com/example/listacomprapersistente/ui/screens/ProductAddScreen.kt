@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -19,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -60,6 +58,7 @@ object ProductUpdateDestination : NavigationDestination {
 @Composable
 fun ProductAddScreen(
     action: String,
+    product: String? = null,
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -90,8 +89,12 @@ fun ProductAddScreen(
         ) {
             when (action) {
                 "Add" -> { AddProductForm() }
-                "Details" -> { DetailsProductForm() }
-                "Update" -> { EditProductForm() }
+                "Details" -> { DetailsProductForm(
+                    name = product ?: "",
+                ) }
+                "Update" -> { EditProductForm(
+                    name = product ?: "",
+                ) }
                 else -> { AddProductForm() }
             }
         }
@@ -100,13 +103,121 @@ fun ProductAddScreen(
 }
 
 @Composable
-fun EditProductForm() {
-    TODO("Not yet implemented")
+fun EditProductForm(
+    name: String = "",
+    quantity: Int = 0,
+    price: Double = 0.0,
+    changeQuantity: (Int) -> Unit = {},
+    changePrice: (Double) -> Unit = {},
+    onEdit: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    Text(name)
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text("Cantidad")
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        OutlinedTextField(
+            value = quantity.toString(),
+            onValueChange = {
+                changeQuantity(it.toInt())
+            },
+            modifier = Modifier.width(86.dp),
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+    }
+
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text("Precio")
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        OutlinedTextField(
+            value = price.toString(),
+            onValueChange = {
+                changePrice(it.toDouble())
+            },
+            modifier = Modifier.width(86.dp),
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        )
+    }
+    Spacer(modifier = Modifier.padding(0.dp, 16.dp))
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = onCancel,
+        ) {
+            Text("Cancelar")
+        }
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Button(
+            onClick = onEdit,
+        ) {
+            Text("Editar")
+        }
+    }
 }
 
 @Composable
-fun DetailsProductForm() {
-    TODO("Not yet implemented")
+fun DetailsProductForm(
+    name: String = "",
+    quantity: Int = 0,
+    price: Double = 0.0,
+    onGoToEdit: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    Text(name)
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text("Cantidad")
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text(quantity.toString())
+    }
+
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text("Precio")
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Text(price.toString())
+    }
+    Spacer(modifier = Modifier.padding(0.dp, 16.dp))
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = onCancel,
+        ) {
+            Text("Cancelar")
+        }
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
+        Button(
+            onClick = onGoToEdit,
+        ) {
+            Text("Editar")
+        }
+    }
 }
 
 @Composable
@@ -132,8 +243,9 @@ fun AddProductForm(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         Text("Cantidad")
-        Spacer(modifier = Modifier.padding(64.dp, 0.dp))
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         OutlinedTextField(
             value = quantity.toString(),
             onValueChange = {
@@ -150,8 +262,9 @@ fun AddProductForm(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         Text("Precio")
-        Spacer(modifier = Modifier.padding(64.dp, 0.dp))
+        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         OutlinedTextField(
             value = price.toString(),
             onValueChange = {
@@ -162,6 +275,7 @@ fun AddProductForm(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
     }
+    Spacer(modifier = Modifier.padding(0.dp, 16.dp))
     Row (
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -186,6 +300,28 @@ fun AddProductForm(
 fun ProductAddScreenPreview() {
     ProductAddScreen(
         action = "Add",
+        navigateBack = {},
+        onNavigateUp = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProductAddScreenPreview2() {
+    ProductAddScreen(
+        action = "Details",
+        product = "Producto",
+        navigateBack = {},
+        onNavigateUp = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProductAddScreenPreview3() {
+    ProductAddScreen(
+        action = "Update",
+        product = "Producto",
         navigateBack = {},
         onNavigateUp = {}
     )
