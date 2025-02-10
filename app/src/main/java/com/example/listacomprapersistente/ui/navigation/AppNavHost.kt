@@ -38,9 +38,7 @@ fun AppNavHost(
             route = ProductAddDestination.route
         ) {
             ProductAddScreen(
-                action = "Add",
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
             )
         }
         composable(
@@ -49,11 +47,7 @@ fun AppNavHost(
                 type = NavType.StringType
             })
             ) {
-            ProductAddScreen(
-                action = "Details",
-                product = it.arguments?.getString(ProductDetailsDestination.productNameArg),
-                navigateBack = { navController.popBackStack() },
-            )
+
         }
         composable(
             route = ProductUpdateDestination.routeWithArgs,
@@ -61,12 +55,7 @@ fun AppNavHost(
                 type = NavType.StringType
             })
         ) {
-            ProductAddScreen(
-                action = "Update",
-                product = it.arguments?.getString(ProductUpdateDestination.productNameArg),
-                navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp()}
-            )
+
         }
     }
 }

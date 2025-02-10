@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.listacomprapersistente.ListaCompraApp
 import com.example.listacomprapersistente.ListaCompraApplication
 import com.example.listacomprapersistente.ui.screens.ListViewModel
+import com.example.listacomprapersistente.ui.screens.ProductAddViewModel
 
 /**
  * El objeto AppViewModelProvider contiene un factory para crear instancias de ViewModels.
@@ -24,6 +24,10 @@ object AppViewModelProvider {
         // Initializer para ListViewModel
         initializer {
             ListViewModel(listaCompraApp().appContainer.productRepository)
+        }
+        // Initializer para ProductAddViewModel
+        initializer {
+            ProductAddViewModel(listaCompraApp().appContainer.productRepository)
         }
     }
 }

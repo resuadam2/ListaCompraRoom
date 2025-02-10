@@ -20,12 +20,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.listacomprapersistente.ui.AppViewModelProvider
 import com.example.listacomprapersistente.ui.navigation.NavigationDestination
+import kotlinx.coroutines.launch
 
 /**
  * Vamos a reutilizar la pantalla de añadir producto para la pantalla de editar producto.
@@ -42,37 +46,19 @@ object ProductAddDestination : NavigationDestination {
     override val route = "productAdd"
 }
 
-object ProductDetailsDestination : NavigationDestination {
-    override val route = "productDetails"
-    const val productNameArg = "productName"
-    val routeWithArgs = "$route/{$productNameArg}"
-}
-
-object ProductUpdateDestination : NavigationDestination {
-    override val route = "productUpdate"
-    const val productNameArg = "productName"
-    val routeWithArgs = "$route/{$productNameArg}"
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductAddScreen(
-    action: String,
-    product: String? = null,
     navigateBack: () -> Unit,
-    onNavigateUp: () -> Unit = {},
     modifier: Modifier = Modifier,
+    viewModel: ProductAddViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
+    val coroutineScope = rememberCoroutineScope()
     Scaffold (
         topBar = {
             TopAppBar(
                 title = {
-                    when (action) {
-                        "Add" -> { Text("Añadir producto") }
-                        "Details" -> { Text("Detalles del producto") }
-                        "Update" -> { Text("Editar producto") }
-                        else -> { Text("Añadir producto") }
-                    }
+                      Text("Añadir producto")
                 },
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
@@ -87,155 +73,46 @@ fun ProductAddScreen(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
-            when (action) {
-                "Add" -> { AddProductForm() }
-                "Details" -> { DetailsProductForm(
-                    name = product ?: "",
-                ) }
-                "Update" -> { EditProductForm(
-                    name = product ?: "",
-                ) }
-                else -> { AddProductForm() }
+                AddProductForm(
+                    productAddUiState = viewModel.productAddUiState,
+                    onProductValueChanged = viewModel::updateUiState,
+                    onAdd = {
+                        /**
+                         * Hay que tener en cuenta que si el usuario rota la pantalla rápido,
+                         * la operación podría cancelarse y el producto no se guardaría en bbdd.
+                         * Esto ocurre cuándo un cambio de configuración (como la rotación de la pantalla)
+                         * ocurre mientras una operación asíncrona está en curso.
+                         * La actividad se destruye y se vuelve a crear, pero la operación asíncrona
+                         * del rememberCoroutineScope se cancela, ya que forma parte de la recomposición.
+                         */
+                        coroutineScope.launch {
+                            viewModel.saveProduct()
+                            navigateBack()
+                        }
+                    },
+                    navigateBack = navigateBack,
+                )
             }
         }
     }
 
-}
 
-@Composable
-fun EditProductForm(
-    name: String = "",
-    quantity: Int = 0,
-    price: Double = 0.0,
-    changeQuantity: (Int) -> Unit = {},
-    changePrice: (Double) -> Unit = {},
-    onEdit: () -> Unit = {},
-    onCancel: () -> Unit = {}
-) {
-    Text(name)
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text("Cantidad")
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        OutlinedTextField(
-            value = quantity.toString(),
-            onValueChange = {
-                changeQuantity(it.toInt())
-            },
-            modifier = Modifier.width(86.dp),
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        )
-    }
 
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text("Precio")
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        OutlinedTextField(
-            value = price.toString(),
-            onValueChange = {
-                changePrice(it.toDouble())
-            },
-            modifier = Modifier.width(86.dp),
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        )
-    }
-    Spacer(modifier = Modifier.padding(0.dp, 16.dp))
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(
-            onClick = onCancel,
-        ) {
-            Text("Cancelar")
-        }
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Button(
-            onClick = onEdit,
-        ) {
-            Text("Editar")
-        }
-    }
-}
-
-@Composable
-fun DetailsProductForm(
-    name: String = "",
-    quantity: Int = 0,
-    price: Double = 0.0,
-    onGoToEdit: () -> Unit = {},
-    onCancel: () -> Unit = {}
-) {
-    Text(name)
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text("Cantidad")
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text(quantity.toString())
-    }
-
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text("Precio")
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Text(price.toString())
-    }
-    Spacer(modifier = Modifier.padding(0.dp, 16.dp))
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(
-            onClick = onCancel,
-        ) {
-            Text("Cancelar")
-        }
-        Spacer(modifier = Modifier.padding(32.dp, 0.dp))
-        Button(
-            onClick = onGoToEdit,
-        ) {
-            Text("Editar")
-        }
-    }
-}
 
 @Composable
 fun AddProductForm(
-    name: String = "",
-    quantity: Int = 0,
-    price: Double = 0.0,
-    changeName: (String) -> Unit = {},
-    changeQuantity: (Int) -> Unit = {},
-    changePrice: (Double) -> Unit = {},
-    onAdd: () -> Unit = {},
-    onCancel: () -> Unit = {}
+   productAddUiState: ProductAddUiState,
+    onProductValueChanged: (ProductDetails) -> Unit,
+    onAdd: () -> Unit,
+    navigateBack: () -> Unit
 ) {
     OutlinedTextField(
-        value = name,
+        value = productAddUiState.productDetails.productName,
         modifier = Modifier.fillMaxWidth(),
-        onValueChange = { changeName(it) },
-        maxLines = 1,
+        onValueChange = {
+            onProductValueChanged(productAddUiState.productDetails.copy(productName = it))
+                        },
+        singleLine = true,
         label = { Text("Producto") }
     )
     Row (
@@ -247,9 +124,9 @@ fun AddProductForm(
         Text("Cantidad")
         Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         OutlinedTextField(
-            value = quantity.toString(),
+            value = productAddUiState.productDetails.productQuantity,
             onValueChange = {
-                changeQuantity(it.toInt())
+                onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = it))
             },
             modifier = Modifier.width(86.dp),
             maxLines = 1,
@@ -266,9 +143,9 @@ fun AddProductForm(
         Text("Precio")
         Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         OutlinedTextField(
-            value = price.toString(),
+            value = productAddUiState.productDetails.productPrice,
             onValueChange = {
-                changePrice(it.toDouble())
+                onProductValueChanged(productAddUiState.productDetails.copy(productPrice = it))
             },
             modifier = Modifier.width(86.dp),
             maxLines = 1,
@@ -282,13 +159,14 @@ fun AddProductForm(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = onCancel,
+            onClick = navigateBack,
         ) {
             Text("Cancelar")
         }
         Spacer(modifier = Modifier.padding(32.dp, 0.dp))
         Button(
             onClick = onAdd,
+            enabled = productAddUiState.isSaveButtonEnabled
         ) {
             Text("Añadir")
         }
@@ -299,30 +177,6 @@ fun AddProductForm(
 @Composable
 fun ProductAddScreenPreview() {
     ProductAddScreen(
-        action = "Add",
         navigateBack = {},
-        onNavigateUp = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProductAddScreenPreview2() {
-    ProductAddScreen(
-        action = "Details",
-        product = "Producto",
-        navigateBack = {},
-        onNavigateUp = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProductAddScreenPreview3() {
-    ProductAddScreen(
-        action = "Update",
-        product = "Producto",
-        navigateBack = {},
-        onNavigateUp = {}
     )
 }
