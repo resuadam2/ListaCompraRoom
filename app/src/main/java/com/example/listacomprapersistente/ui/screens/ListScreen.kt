@@ -50,8 +50,8 @@ object ListDestination : NavigationDestination {
 @Composable
 fun ListScreen(
     navigateToAddProduct: () -> Unit,
-    navigateToProductDetails: () -> Unit,
-    navigateToProductUpdate: () -> Unit,
+    navigateToProductDetails: (String) -> Unit,
+    navigateToProductUpdate: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
@@ -109,10 +109,14 @@ fun ListScreen(
                     ProductItem(
                         product = product,
                         onView = {
-                            navigateToProductDetails()
+                            navigateToProductDetails(
+                                product.name
+                            )
                         },
                         onEdit = {
-                            navigateToProductUpdate()
+                            navigateToProductUpdate(
+                                product.name
+                            )
                         },
                         onDelete = {
                             coroutineScope.launch {

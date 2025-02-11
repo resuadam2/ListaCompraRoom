@@ -10,8 +10,10 @@ import com.example.listacomprapersistente.ui.screens.ListDestination
 import com.example.listacomprapersistente.ui.screens.ListScreen
 import com.example.listacomprapersistente.ui.screens.ProductAddDestination
 import com.example.listacomprapersistente.ui.screens.ProductAddScreen
+import com.example.listacomprapersistente.ui.screens.ProductDetailScreen
 import com.example.listacomprapersistente.ui.screens.ProductDetailsDestination
 import com.example.listacomprapersistente.ui.screens.ProductUpdateDestination
+import com.example.listacomprapersistente.ui.screens.ProductUpdateScreen
 
 @Composable
 fun AppNavHost(
@@ -27,10 +29,10 @@ fun AppNavHost(
                     navController.navigate(ProductAddDestination.route)
                 },
                 navigateToProductDetails = {
-                    navController.navigate(ProductDetailsDestination.routeWithArgs)
+                    navController.navigate("${ProductDetailsDestination.route}/$it")
                 },
                 navigateToProductUpdate = {
-                    navController.navigate(ProductUpdateDestination.routeWithArgs)
+                    navController.navigate("${ProductUpdateDestination.route}/$it")
                 }
             )
         }
@@ -47,7 +49,12 @@ fun AppNavHost(
                 type = NavType.StringType
             })
             ) {
-
+            ProductDetailScreen(
+                navigateBack = { navController.popBackStack() },
+                navigateToEditProduct = {
+                    navController.navigate("${ProductUpdateDestination.route}/$it")
+                }
+            )
         }
         composable(
             route = ProductUpdateDestination.routeWithArgs,
@@ -55,7 +62,9 @@ fun AppNavHost(
                 type = NavType.StringType
             })
         ) {
-
+            ProductUpdateScreen(
+                navigateBack = { navController.popBackStack() },
+            )
         }
     }
 }
