@@ -3,7 +3,7 @@ package com.example.listacomprapersistente.data
 import kotlinx.coroutines.flow.Flow
 
 interface PruductRepository {
-    fun getProductsStream(): Flow<List<Product>>
+    fun getAllProductsStream(): Flow<List<Product>>
     fun getProductStream(name: String): Flow<Product?>
     suspend fun insertProduct(product: Product)
     suspend fun updateProduct(product: Product)
@@ -11,7 +11,7 @@ interface PruductRepository {
 }
 
 class PruductRepositoryImpl(private val productDao: ProductDao) : PruductRepository {
-    override fun getProductsStream(): Flow<List<Product>> {
+    override fun getAllProductsStream(): Flow<List<Product>> {
         return productDao.getAllProducts()
     }
 

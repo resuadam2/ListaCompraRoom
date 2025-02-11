@@ -1,5 +1,6 @@
 package com.example.listacomprapersistente.ui.screens
 
+import androidx.activity.result.launch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listacomprapersistente.data.Product
@@ -10,14 +11,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 
 data class ListUiState(
     val products: List<Product> = emptyList(),
-)
-
-data class TotalsUiState(
+    val isLoading: Boolean = true,
     val totalQuantity: Int = 0,
     val totalPrice: Double = 0.0,
 )
@@ -43,32 +44,37 @@ class ListViewModel(private val productRepository: PruductRepository) : ViewMode
     * constantemente, lo que puede ser molesto para el usuario
      */
 
-    var listUiState: StateFlow<ListUiState> =
-        productRepository.getProductsStream().map {
-            ListUiState(it)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = ListUiState()
-        )
-
-    private val _totals  = MutableStateFlow(TotalsUiState())
-    var totals = _totals.asStateFlow()
+    private val _listUiState = MutableStateFlow(ListUiState())
+    val listUiState: StateFlow<ListUiState> = _listUiState.asStateFlow()
 
     init {
-        updateTotals()
-    }
+        viewModelScope.launch {
+            productRepository.getAllProductsStream().onEach { products ->
+                _listUiState.value = _listUiState.value.copy(
+                    products = products,
+                    isLoading = false
+                )
+                calculateTotals()
+            }.collect {}
+        }    }
 
     suspend fun deleteProduct(product: Product) {
         productRepository.deleteProduct(product)
         delay(500) // Pequeño delay para que de tiempo a borrar de bd
-        updateTotals()
+        calculateTotals()
     }
 
-    private fun updateTotals() {
-        _totals.value = totals.value.copy(
-            totalQuantity = listUiState.value.products.sumOf { it.quantity },
-            totalPrice = listUiState.value.products.sumOf { it.price }
+    private fun calculateTotals() {
+        val products = _listUiState.value.products
+        var quantity = 0
+        var price = 0.0
+        products.forEach {
+            quantity += it.quantity
+            price += it.price * it.quantity
+        }
+        _listUiState.value = _listUiState.value.copy(
+            totalQuantity = quantity,
+            totalPrice = price
         )
     }
 }

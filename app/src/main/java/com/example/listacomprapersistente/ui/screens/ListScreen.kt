@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,8 +55,7 @@ fun ListScreen(
     modifier: Modifier = Modifier,
     viewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
-    val state = viewModel.listUiState.collectAsState()
-    val totals = viewModel.totals.collectAsState()
+    val state by viewModel.listUiState.collectAsState()
 
     Scaffold (
         topBar = {
@@ -88,8 +89,8 @@ fun ListScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ){
                 TotalRow(
-                    totalQuantity = totals.value.totalQuantity.toString(),
-                    totalPrice = totals.value.totalPrice.toString()
+                    totalQuantity = state.totalQuantity.toString(),
+                    totalPrice = state.totalPrice.toString()
                 )
             }
         }
@@ -99,24 +100,27 @@ fun ListScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Necesitamos definir un coroutineScope para poder lanzar coroutines en Composables
-            val coroutineScope = rememberCoroutineScope()
-            state.value.products.forEach { product ->
-                ProductItem(
-                    product = product,
-                    onView = {
-                        navigateToProductDetails()
-                    },
-                    onEdit = {
-                        navigateToProductUpdate()
-                    },
-                    onDelete = {
-                        coroutineScope.launch {
-                            viewModel.deleteProduct(product)
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                // Necesitamos definir un coroutineScope para poder lanzar coroutines en Composables
+                val coroutineScope = rememberCoroutineScope()
+                state.products.forEach { product ->
+                    ProductItem(
+                        product = product,
+                        onView = {
+                            navigateToProductDetails()
+                        },
+                        onEdit = {
+                            navigateToProductUpdate()
+                        },
+                        onDelete = {
+                            coroutineScope.launch {
+                                viewModel.deleteProduct(product)
+                            }
                         }
-                    }
-                )
-
+                    )
+                }
             }
         }
     }
