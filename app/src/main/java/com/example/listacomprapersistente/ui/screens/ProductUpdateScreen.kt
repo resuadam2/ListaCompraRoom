@@ -28,6 +28,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.listacomprapersistente.ui.AppViewModelProvider
 import com.example.listacomprapersistente.ui.navigation.NavigationDestination
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.launch
 
 
@@ -88,6 +90,7 @@ fun UpdateProductForm(
     onEdit: () -> Unit = {},
     onCancel: () -> Unit = {}
 ) {
+    val focusManager = LocalFocusManager.current
     Text("Producto: ${productDetailUiState.productDetails.productName}")
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -102,7 +105,14 @@ fun UpdateProductForm(
             onValueChange = {
                 onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = it))
             },
-            modifier = Modifier.width(86.dp),
+            modifier = Modifier.width(86.dp)
+                .onFocusChanged {
+                    if (it.hasFocus)  {
+                        onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = ""))
+                    } else if (productDetailUiState.productDetails.productQuantity.isEmpty()) {
+                        onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = "1"))
+                    }
+                },
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
@@ -121,7 +131,14 @@ fun UpdateProductForm(
             onValueChange = {
                 onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = it))
             },
-            modifier = Modifier.width(86.dp),
+            modifier = Modifier.width(86.dp)
+                .onFocusChanged {
+                    if (it.hasFocus)  {
+                        onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = ""))
+                    } else if (productDetailUiState.productDetails.productPrice.isEmpty()) {
+                        onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = "1.0"))
+                    }
+                },
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )

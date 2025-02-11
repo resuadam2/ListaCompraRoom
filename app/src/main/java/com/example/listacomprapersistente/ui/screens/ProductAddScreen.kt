@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -116,6 +118,7 @@ fun AddProductForm(
     onAdd: () -> Unit,
     navigateBack: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     OutlinedTextField(
         value = productAddUiState.productDetails.productName,
         modifier = Modifier.fillMaxWidth(),
@@ -138,7 +141,14 @@ fun AddProductForm(
             onValueChange = {
                 onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = it))
             },
-            modifier = Modifier.width(86.dp),
+            modifier = Modifier.width(86.dp)
+                .onFocusChanged {
+                    if (it.hasFocus)  {
+                        onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = ""))
+                    } else if (productAddUiState.productDetails.productQuantity.isEmpty()) {
+                        onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = "1"))
+                    }
+                },
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
@@ -157,7 +167,14 @@ fun AddProductForm(
             onValueChange = {
                 onProductValueChanged(productAddUiState.productDetails.copy(productPrice = it))
             },
-            modifier = Modifier.width(86.dp),
+            modifier = Modifier.width(86.dp)
+                .onFocusChanged {
+                if (it.hasFocus)  {
+                    onProductValueChanged(productAddUiState.productDetails.copy(productPrice = ""))
+                } else if (productAddUiState.productDetails.productPrice.isEmpty()) {
+                    onProductValueChanged(productAddUiState.productDetails.copy(productPrice = "1.0"))
+                }
+            },
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
