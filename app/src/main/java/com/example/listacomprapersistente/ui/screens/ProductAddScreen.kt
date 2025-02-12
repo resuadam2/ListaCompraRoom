@@ -35,17 +35,6 @@ import com.example.listacomprapersistente.ui.AppViewModelProvider
 import com.example.listacomprapersistente.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
 
-/**
- * Vamos a reutilizar la pantalla de añadir producto para la pantalla de editar producto.
- * Para ello, vamos a añadir un argumento a la ruta de la pantalla de añadir producto.
- * De esta forma, cuando naveguemos a la pantalla de añadir producto, podremos pasarle el nombre
- * del producto que queremos editar.
- * También vamos a utilizar esta pantalla para ver en detalle un producto.
- * Para ello, vamos a añadir un argumento a la ruta de la pantalla de añadir producto.
- * De esta forma, cuando naveguemos a la pantalla de añadir producto, podremos pasarle el nombre
- * del producto que queremos ver en detalle.
- */
-
 object ProductAddDestination : NavigationDestination {
     override val route = "productAdd"
 }
@@ -80,6 +69,12 @@ fun ProductAddScreen(
         ) {
                 AddProductForm(
                     productAddUiState = viewModel.productAddUiState,
+                    /**
+                     * El operador '::' se utiliza para referenciar una función.
+                     * En este caso, se está referenciando la función updateUiState del ViewModel.
+                     * Esto se hace para que la función updateUiState se ejecute cada vez que se
+                     * modifique el valor de un campo del formulario.
+                     */
                     onProductValueChanged = viewModel::updateUiState,
                     onAdd = {
                         /**
@@ -145,7 +140,7 @@ fun AddProductForm(
                 .onFocusChanged {
                     if (it.hasFocus)  {
                         onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = ""))
-                    } else if (productAddUiState.productDetails.productQuantity.isEmpty()) {
+                    } else if (productAddUiState.productDetails.productQuantity.isBlank()) {
                         onProductValueChanged(productAddUiState.productDetails.copy(productQuantity = "1"))
                     }
                 },
@@ -171,8 +166,8 @@ fun AddProductForm(
                 .onFocusChanged {
                 if (it.hasFocus)  {
                     onProductValueChanged(productAddUiState.productDetails.copy(productPrice = ""))
-                } else if (productAddUiState.productDetails.productPrice.isEmpty()) {
-                    onProductValueChanged(productAddUiState.productDetails.copy(productPrice = "1.0"))
+                } else if (productAddUiState.productDetails.productPrice.isBlank()) {
+                    onProductValueChanged(productAddUiState.productDetails.copy(productPrice = "1,0"))
                 }
             },
             maxLines = 1,

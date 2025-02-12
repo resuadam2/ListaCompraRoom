@@ -26,11 +26,7 @@ class ProductUpdateViewModel(
     init {
         val productName = savedStateHandle.get<String>("productName") ?: ""
         val productDetails = productRepository.getProductStream(productName).filterNotNull().map {
-            ProductDetails(
-                productName = it.name,
-                productQuantity = it.quantity.toString(),
-                productPrice = it.price.toString(),
-            )
+            it.toProductDetails()
         }
         viewModelScope.launch {
             productDetails.collect {

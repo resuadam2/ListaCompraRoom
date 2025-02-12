@@ -63,7 +63,10 @@ fun ProductUpdateScreen(
         }
     ) {
         Column (
-            modifier = modifier.padding(it).fillMaxSize().padding(16.dp),
+            modifier = modifier
+                .padding(it)
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -105,12 +108,21 @@ fun UpdateProductForm(
             onValueChange = {
                 onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = it))
             },
-            modifier = Modifier.width(86.dp)
+            modifier = Modifier
+                .width(86.dp)
                 .onFocusChanged {
-                    if (it.hasFocus)  {
-                        onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = ""))
-                    } else if (productDetailUiState.productDetails.productQuantity.isEmpty()) {
-                        onProductValueChanged(productDetailUiState.productDetails.copy(productQuantity = "1"))
+                    if (it.hasFocus) {
+                        onProductValueChanged(
+                            productDetailUiState.productDetails.copy(
+                                productQuantity = ""
+                            )
+                        )
+                    } else if (productDetailUiState.productDetails.productQuantity.isBlank()) {
+                        onProductValueChanged(
+                            productDetailUiState.productDetails.copy(
+                                productQuantity = "1"
+                            )
+                        )
                     }
                 },
             maxLines = 1,
@@ -131,11 +143,12 @@ fun UpdateProductForm(
             onValueChange = {
                 onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = it))
             },
-            modifier = Modifier.width(86.dp)
+            modifier = Modifier
+                .width(86.dp)
                 .onFocusChanged {
-                    if (it.hasFocus)  {
+                    if (it.hasFocus) {
                         onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = ""))
-                    } else if (productDetailUiState.productDetails.productPrice.isEmpty()) {
+                    } else if (productDetailUiState.productDetails.productPrice.isBlank()) {
                         onProductValueChanged(productDetailUiState.productDetails.copy(productPrice = "1.0"))
                     }
                 },
